@@ -1,4 +1,5 @@
-const express = require("express")
+import express from "express"
+import authRoutes from "./routes/auth.routes.js"
 
 const app = express()
 
@@ -9,4 +10,6 @@ app.get("/" , (req, res ) => {
     res.send("API running")
 })
 
-module.exports = app;
+app.get("/api/auth" , authRoutes)
+
+export default app
