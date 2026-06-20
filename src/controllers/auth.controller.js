@@ -4,6 +4,10 @@ import { generateAccesstoken, generateRefreshtoken } from '../utils/generateToke
 
 
 export const register = async (req , res) => {
+
+
+
+
     try {
         const { name , email , password } = req.body
 
@@ -28,7 +32,27 @@ export const register = async (req , res) => {
             }
         })
 
-        res.status(200).json(user)
+        const accessToken = generateAccesstoken(user.id)
+        const resfreshToken = generateRefreshtoken(user.id)
+
+
+        res.cookie(
+            "refreshToken",
+            resfreshToken,
+            {
+                httpOnly: true,
+                secure: false,
+                sameSite: "lax",
+                maxAge:
+                    7 * 24 * 60 * 60 * 1000
+            }
+        )
+
+        res.status(200).json({
+            user,
+            accessToken,
+            message: "User Signup Successfull",
+        })
     } catch (error) {
         console.error(error)
         res.status(500).json({
@@ -39,11 +63,21 @@ export const register = async (req , res) => {
 
 export const login = async (req, res) => {
     try {
+
+        console.log(req, "fdsagfdsgdfsgsd");
+
+
         const { email, password } = req.body
+
+        console.log(email, "fdsgdfsgfds");
+
 
         const user = await prisma.user.findUnique({
             where: { email },
         })
+
+
+
 
         if (!user) {
             res.status(401).json({
@@ -59,9 +93,11 @@ export const login = async (req, res) => {
             })
         }
 
+
         const accessToken = generateAccesstoken(user.id)
         const resfreshToken = generateRefreshtoken(user.id)
 
+        console.log("dfgsgsdsxfdafjhfgshdj");
 
         res.cookie(
             "refreshToken",
@@ -74,6 +110,9 @@ export const login = async (req, res) => {
                     7 * 24 * 60 * 60 * 1000
             }
         )
+
+        console.log(accessToken, resfreshToken, "fdsgagffdsgdfsgfdsgds");
+
 
         return res.status(200).json({
             success: true,
