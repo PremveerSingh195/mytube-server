@@ -10,6 +10,10 @@ app.use(
         {
             origin: "http://localhost:3000",
             credentials: true
+        },
+        {
+            origin: "mytube-xi-two.vercel.app",
+            credentials: true
         }
     )
 )
