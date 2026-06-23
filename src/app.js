@@ -2,6 +2,7 @@ import express from "express"
 import authRoutes from "./routes/auth.routes.js"
 import cookieParser from "cookie-parser";
 import cors from "cors"
+import { prisma } from "./config/prisma.js";
 
 const app = express()
 
@@ -24,7 +25,7 @@ app.get("/" , (req, res ) => {
 
 app.get("/health", async (req, res) => {
     try {
-        await pool.query("SELECT 1");
+        await prisma.$queryRaw`SELECT 1`;
 
         res.json({
             server: "running",
