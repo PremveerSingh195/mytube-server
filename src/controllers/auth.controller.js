@@ -8,18 +8,18 @@ export const register = async (req , res) => {
     try {
         const { name , email , password } = req.body
 
-        // if (!name | !email | !password) {
-        //     return res.status(400).json({
-        //         message: "all three needed name , email , password",
-        //     })
-        // }
+        if (!name || !email || !password) {
+            return res.status(400).json({
+                message: "all three needed name , email , password",
+            })
+        }
 
 
         const existingUser = await prisma.user.findUnique({
             where : {email}
         })
 
-        if (!existingUser) {
+        if (existingUser) {
             return res.status(400).json({
                 message : "User already exist"
             })
@@ -35,21 +35,20 @@ export const register = async (req , res) => {
             }
         })
 
-        // if (!user) {
-        //     return res.status(400).json({
-        //         message: "failed to add user to database"
-        //     })
-        // }
+        if (!user) {
+            return res.status(400).json({
+                message: "failed to add user to database"
+            })
+        }
 
         const accessToken = generateAccesstoken(user.id)
         const resfreshToken = generateRefreshtoken(user.id)
 
-        // if (!!accessToken && !!resfreshToken) {
-        //     return res.status(400).json({
-        //         message: "unable to generate token"
-        //     })
-        // }
-
+        if (!accessToken || !resfreshToken) {
+            return res.status(400).json({
+                message: "unable to generate token"
+            })
+        }
 
         res.cookie(
             "refreshToken",
@@ -63,8 +62,10 @@ export const register = async (req , res) => {
             }
         )
 
+        const { password: _, ...safeuser } = user
+
         res.status(200).json({
-            user,
+            user: safeuser,
             accessToken,
             message: "User Signup Successfull",
         })
