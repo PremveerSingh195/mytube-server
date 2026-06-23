@@ -19,7 +19,7 @@ export const register = async (req , res) => {
             where : {email}
         })
 
-        if (existingUser) {
+        if (!existingUser) {
             return res.status(400).json({
                 message : "User already exist"
             })
@@ -71,7 +71,7 @@ export const register = async (req , res) => {
     } catch (error) {
         console.error(error)
         res.status(500).json({
-            message: " Server Error"
+            message: "Server Error"
         })
     }
 }
