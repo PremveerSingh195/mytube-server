@@ -8,6 +8,12 @@ export const register = async (req , res) => {
     try {
         const { name , email , password } = req.body
 
+        if (!name | !email | !password) {
+            return res.status(400).json({
+                message: "all three needed name , email , password",
+            })
+        }
+
 
         const existingUser = await prisma.user.findUnique({
             where : {email}
@@ -29,8 +35,20 @@ export const register = async (req , res) => {
             }
         })
 
+        if (!user) {
+            return res.status(400).json({
+                message: "failed to add user to database"
+            })
+        }
+
         const accessToken = generateAccesstoken(user.id)
         const resfreshToken = generateRefreshtoken(user.id)
+
+        if (!!accessToken && !!resfreshToken) {
+            return res.status(400).json({
+                message: "unable to generate token"
+            })
+        }
 
 
         res.cookie(
@@ -53,7 +71,7 @@ export const register = async (req , res) => {
     } catch (error) {
         console.error(error)
         res.status(500).json({
-            message : "Server Error"
+            message: " Server Error"
         })
     }
 }
