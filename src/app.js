@@ -6,17 +6,14 @@ import cors from "cors"
 const app = express()
 
 app.use(
-    cors(
-        {
-            origin: "http://localhost:3000",
-            credentials: true
-        },
-        {
-            origin: "mytube-xi-two.vercel.app",
-            credentials: true
-        }
-    )
-)
+    cors({
+        origin: [
+            "http://localhost:3000",
+            "https://mytube-xi-two.vercel.app"
+        ],
+        credentials: true,
+    })
+);
 
 app.use(express.json());
 

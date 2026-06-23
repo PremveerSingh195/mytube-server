@@ -5,9 +5,6 @@ import { generateAccesstoken, generateRefreshtoken } from '../utils/generateToke
 
 export const register = async (req , res) => {
 
-
-
-
     try {
         const { name , email , password } = req.body
 
