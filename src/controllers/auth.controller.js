@@ -1,12 +1,12 @@
 import bcrypt from 'bcryptjs';
-import {prisma} from "../config/prisma.js"
+import { prisma } from "../config/prisma.js"
 import { generateAccesstoken, generateRefreshtoken } from '../utils/generateToken.js';
 
 
-export const register = async (req , res) => {
+export const register = async (req, res) => {
 
     try {
-        const { name , email , password } = req.body
+        const { name, email, password } = req.body
 
         if (!name || !email || !password) {
             return res.status(400).json({
@@ -14,24 +14,23 @@ export const register = async (req , res) => {
             })
         }
 
-
         const existingUser = await prisma.user.findUnique({
-            where : {email}
+            where: { email }
         })
 
         if (existingUser) {
             return res.status(400).json({
-                message : "User already exist"
+                message: "User already exist"
             })
         }
 
-        const hashedPassword = await bcrypt.hash(password , 10)
+        const hashedPassword = await bcrypt.hash(password, 10)
 
         const user = await prisma.user.create({
-            data : {
-                name ,
-                email ,
-                password : hashedPassword
+            data: {
+                name,
+                email,
+                password: hashedPassword
             }
         })
 
@@ -64,11 +63,24 @@ export const register = async (req , res) => {
 
         const { password: _, ...safeuser } = user
 
-        res.status(200).json({
-            user: safeuser,
+        res.cookie(
+            "refreshToken",
+            resfreshToken,
+            {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                maxAge:
+                    7 * 24 * 60 * 60 * 1000
+            }
+        )
+
+        return res.status(200).json({
             accessToken,
-            message: "User Signup Successfull",
+            user: safeuser,
+            message: "User created Successfully",
         })
+
     } catch (error) {
         console.error(error)
         res.status(500).json({
@@ -81,20 +93,11 @@ export const register = async (req , res) => {
 export const login = async (req, res) => {
     try {
 
-        console.log(req, "fdsagfdsgdfsgsd");
-
-
         const { email, password } = req.body
-
-        console.log(email, "fdsgdfsgfds");
-
 
         const user = await prisma.user.findUnique({
             where: { email },
         })
-
-
-
 
         if (!user) {
             res.status(401).json({
@@ -114,8 +117,6 @@ export const login = async (req, res) => {
         const accessToken = generateAccesstoken(user.id)
         const resfreshToken = generateRefreshtoken(user.id)
 
-        console.log("dfgsgsdsxfdafjhfgshdj");
-
         res.cookie(
             "refreshToken",
             resfreshToken,
@@ -127,8 +128,6 @@ export const login = async (req, res) => {
                     7 * 24 * 60 * 60 * 1000
             }
         )
-
-        console.log(accessToken, resfreshToken, "fdsgagffdsgdfsgfdsgds");
 
 
         return res.status(200).json({
