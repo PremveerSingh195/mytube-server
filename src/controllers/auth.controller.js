@@ -5,6 +5,7 @@ import {
   generateRefreshtoken,
 } from "../utils/generateToken.js";
 import * as authService from "../services/auth.service.js";
+import jwt from "jsonwebtoken";
 
 export const register = async (req, res) => {
   try {
@@ -152,9 +153,7 @@ export const googleLogin = async (req, res) => {
       maxAge: 31 * 7 * 24 * 60 * 60 * 1000,
     });
 
-    const {refreshToken , ...safeResponse} = response;
-
-
+    const { refreshToken, ...safeResponse } = response;
 
     return res.status(200).json(safeResponse);
   } catch (error) {
@@ -162,5 +161,55 @@ export const googleLogin = async (req, res) => {
       success: false,
       message: error.message,
     });
+  }
+};
+
+export const refreshAccessToken = async (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+
+  if (!refreshToken) {
+    return res.status(401).json({ message: "Refresh token not found" });
+  }
+
+  // ── 1. Verify JWT ──────────────────────────────────────────
+  let decoded;
+  try {
+    decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+  } catch (error) {
+    return res.status(401).json({ message: "Invalid or expired token" });
+  }
+
+  // ── 2. Fetch user from DB ──────────────────────────────────
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: parseInt(decoded.userId), // make sure type matches your schema
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    const accessToken = generateAccesstoken(user.id);
+
+    return res.status(200).json({
+      user: {
+        _id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+      accessToken,
+    });
+  } catch (error) {
+    console.error("DB error:", error); // full error object
+    console.error("Decoded JWT:", decoded); // see what id looks like
+    console.error("ID type:", typeof decoded.id, "| Value:", decoded.id);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
