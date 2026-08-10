@@ -189,6 +189,7 @@ export const refreshAccessToken = async (req, res) => {
         id: true,
         name: true,
         email: true,
+        channel : true
       },
     });
 
@@ -203,6 +204,7 @@ export const refreshAccessToken = async (req, res) => {
         _id: user.id,
         name: user.name,
         email: user.email,
+        channel : user.channel
       },
       accessToken,
     });
