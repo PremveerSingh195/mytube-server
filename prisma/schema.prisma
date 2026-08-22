@@ -8,15 +8,30 @@ datasource db {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
+  id       Int    @id @default(autoincrement())
   name     String
-  email    String  @unique
+  email    String @unique
   password String?
 
   googleId     String? @unique
   profileImage String?
   provider     String  @default("LOCAL")
 
+  channel Channel?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Channel {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+  image       String?
+
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

@@ -122,6 +122,7 @@ export const login = async (req, res) => {
         id: user.id,
         name: user.name,
         email: user.email,
+        channel: user.channel
       },
     });
   } catch (error) {
@@ -152,6 +153,9 @@ export const googleLogin = async (req, res) => {
       sameSite: "lax",
       maxAge: 31 * 7 * 24 * 60 * 60 * 1000,
     });
+
+    console.log(response , "fdasjfhgdsjhg");
+    
 
     const { refreshToken, ...safeResponse } = response;
 
@@ -189,6 +193,7 @@ export const refreshAccessToken = async (req, res) => {
         id: true,
         name: true,
         email: true,
+        channel : true
       },
     });
 
@@ -203,6 +208,7 @@ export const refreshAccessToken = async (req, res) => {
         _id: user.id,
         name: user.name,
         email: user.email,
+        channel : user.channel
       },
       accessToken,
     });
@@ -213,3 +219,21 @@ export const refreshAccessToken = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const logout = async (req , res) => {
+    res.clearCookie("token" , {
+      httpOnly : true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite : "lax"
+    })
+
+    res.json({
+      message : "Logged out Successfully"
+    })
+}
+
+export const forgotPassword = async (req , res) => {
+  res.json({
+    message : "endpoint working"
+  })
+}
