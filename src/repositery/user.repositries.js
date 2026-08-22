@@ -5,11 +5,19 @@ export const findByEmail = async (email) => {
     where: {
       email,
     },
+    include: {
+      channel: true,
+    },
   });
 };
 
 export const create = async (data) => {
-  return await prisma.user.create({ data });
+  return await prisma.user.create({
+    data,
+    include: {
+      channel: true,
+    },
+  });
 };
 
 export const updatedGoogleId = async (id, googleId) => {
@@ -20,6 +28,9 @@ export const updatedGoogleId = async (id, googleId) => {
     data: {
       googleId,
       provider: "GOOGLE",
+    },
+    include: {
+      channel: true,
     },
   });
 };

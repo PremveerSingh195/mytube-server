@@ -1,13 +1,26 @@
-import express from "express"
-import { forgotPassword, googleLogin, logout, refreshAccessToken, register } from "../controllers/auth.controller.js"
-import { login } from "../controllers/auth.controller.js";
+import express from "express";
+import {
+  register,
+  login,
+  googleLogin,
+  logout,
+  refreshAccessToken,
+  sendOtp,
+  verifyOtp,
+  resetPassword,
+  forgotPassword,
+} from "../controllers/auth.controller.js";
 
 const router = express.Router();
 
-router.post("/register" ,  register)
-router.post("/login", login)
-router.post("/google" , googleLogin)
-router.post("/logout" , logout)
-router.post("/forgotPassword" , forgotPassword)
-router.post("/refresh" , refreshAccessToken)
-export default router
+router.post("/register", register);
+router.post("/login", login);
+router.post("/google", googleLogin);
+router.post("/logout", logout);
+router.post("/refresh", refreshAccessToken);
+router.post("/sendOtp", sendOtp);
+router.post("/verifyOtp", verifyOtp);
+router.post("/resetPassword", resetPassword);
+router.post("/forgotPassword", forgotPassword);
+
+export default router;
